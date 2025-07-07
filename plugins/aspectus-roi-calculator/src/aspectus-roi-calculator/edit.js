@@ -33,8 +33,8 @@ export default function Edit() {
 	return (
 		<p { ...useBlockProps() }>
 			{ __(
-				'Roi Calculator – hello from the editor!',
-				'roi-calculator'
+				'Aspectus Roi Calculator – hello from the editor!',
+				'aspectus-roi-calculator'
 			) }
 		</p>
 	);

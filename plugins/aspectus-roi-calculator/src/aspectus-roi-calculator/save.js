@@ -18,7 +18,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 export default function save() {
 	return (
 		<p { ...useBlockProps.save() }>
-			{ 'Roi Calculator – hello from the saved content!' }
+			{ 'Aspectus Roi Calculator – hello from the saved content!' }
 		</p>
 	);
 }

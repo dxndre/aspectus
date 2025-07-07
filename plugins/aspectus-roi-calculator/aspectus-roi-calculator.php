@@ -1,16 +1,17 @@
 <?php
 /**
- * Plugin Name:       Roi Calculator
- * Description:       Example block scaffolded with Create Block tool.
- * Version:           0.1.0
- * Requires at least: 6.7
+ * Plugin Name:       Aspectus ROI Calculator
+ * Description:       A reusable, dynamic ROI calculator Gutenberg block with editable inputs and live results.
+ * Version:           1.0.0
+ * Requires at least: 6.1
  * Requires PHP:      7.4
- * Author:            The WordPress Contributors
+ * Author:            D’André Phillips
+ * Author URI:        https://www.dxndre.co.uk
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       roi-calculator
+ * Text Domain:       aspectus-roi-calculator
  *
- * @package CreateBlock
+ * @package           aspectus-roi-calculator
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -24,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @see https://make.wordpress.org/core/2025/03/13/more-efficient-block-type-registration-in-6-8/
  * @see https://make.wordpress.org/core/2024/10/17/new-block-type-registration-apis-to-improve-performance-in-wordpress-6-7/
  */
-function create_block_roi_calculator_block_init() {
+function aspectus_aspectus_roi_calculator_block_init() {
 	/**
 	 * Registers the block(s) metadata from the `blocks-manifest.php` and registers the block type(s)
 	 * based on the registered block metadata.
@@ -56,4 +57,4 @@ function create_block_roi_calculator_block_init() {
 		register_block_type( __DIR__ . "/build/{$block_type}" );
 	}
 }
-add_action( 'init', 'create_block_roi_calculator_block_init' );
+add_action( 'init', 'aspectus_aspectus_roi_calculator_block_init' );

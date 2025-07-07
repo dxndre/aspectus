@@ -1,12 +1,12 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "create-block/roi-calculator",
+	"name": "aspectus/roi-calculator",
 	"version": "0.1.0",
-	"title": "Roi Calculator",
+	"title": "Aspectus ROI Calculator",
 	"category": "widgets",
 	"icon": "smiley",
-	"description": "Example block scaffolded with Create Block tool.",
+	"description": "A custom ROI calculator block for WordPress.",
 	"example": {},
 	"supports": {
 		"html": false

@@ -21,5 +21,5 @@
  */
 
 /* eslint-disable no-console */
-console.log( 'Hello World! (from create-block-roi-calculator block)' );
+console.log( 'Hello World! (from aspectus-aspectus-roi-calculator block)' );
 /* eslint-enable no-console */
