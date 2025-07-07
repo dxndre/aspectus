@@ -298,20 +298,19 @@ function aspectus_roi_calculator_render_callback( $attributes ) {
 			};
 
 			const updateROI = () => {
-				const percentage = getVal('percentage_increase_slider'); // e.g. 1
-				const hours = getVal('hours_slider');                   // e.g. 24
-				const days = getVal('days_slider');                     // e.g. 7
-				const weeks = getVal('weeks_per_year_slider');          // e.g. 50
-				const unitsPerHour = getVal('units_per_hour_input');    // e.g. 100
-				const profitPerUnit = getVal('profit_per_unit_input');  // e.g. 2
+				const percentage = getVal('percentage_increase_slider');
+				const hours = getVal('hours_slider');
+				const days = getVal('days_slider');
+				const weeks = getVal('weeks_per_year_slider');
+				const unitsPerHour = getVal('units_per_hour_input');
+				const profitPerUnit = getVal('profit_per_unit_input');
 
-				const unitsPerYear = hours * days * weeksPerYear * unitsPerHour; // expected units per year
+				const unitsPerYear = hours * days * weeks * unitsPerHour; // corrected variable here
 				const profitPerYear = profitPerUnit * unitsPerYear;
 
 				const hoursInWeek = 24 * 7; // constant = 168
 				const extraHours = (percentage / 100) * hoursInWeek;
 				const extraUnitsPerWeek = unitsPerHour * extraHours;
-
 
 				// Update values
 				setText('percentage_increase_slider_value', percentage);
@@ -332,9 +331,9 @@ function aspectus_roi_calculator_render_callback( $attributes ) {
 				);
 				setText('extra_units_per_week_value', extraUnitsPerWeek.toLocaleString());
 
-				// Update main ROI display
+				// Update main ROI display (adjust if needed)
 				const roiOutput = document.getElementById('roi_result');
-				if (roiOutput) roiOutput.textContent = `Estimated ROI increase: £${roi.toFixed(2)}`;
+				if (roiOutput) roiOutput.textContent = `Estimated ROI increase: £${profitPerYear.toFixed(2)}`;
 			};
 
 			const inputs = [
