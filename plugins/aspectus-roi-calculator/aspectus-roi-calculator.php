@@ -299,15 +299,45 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 				<label for="profit_per_unit_input">
 					<strong><?php echo esc_html( $labels['profit_per_unit'] ?? __('Profit Per Unit', 'aspectus-roi-calculator') ); ?></strong>
 				</label>
-				<input
-					type="number"
-					step="0.01"
-					id="profit_per_unit_input"
-					value="<?php echo esc_attr( $profit_per_unit_value ); ?>"
-					placeholder="<?php echo esc_attr( $placeholders['profit_per_unit'] ?? '' ); ?>"
-					style="width: 100%; margin-bottom: 0.5rem;"
-				/>
+
+				<div style="display: flex; gap: 0.5rem;">
+					<select
+						id="profit_per_unit_currency"
+						name="profit_per_unit_currency"
+						style="width: 40%;"
+					>
+						<?php
+						$currency_choices = [
+							'gbp' => '£ GBP',
+							'usd' => '$ USD',
+							'eur' => '€ EUR',
+							'cad' => '$ CAD',
+							'aud' => '$ AUD',
+							'jpy' => '¥ JPY',
+							'cny' => '¥ CNY',
+							'inr' => '₹ INR',
+							'chf' => 'CHF',
+							'zar' => 'R ZAR',
+						];
+
+						foreach ( $currency_choices as $code => $label ) {
+							$selected = $currency === $code ? 'selected' : '';
+							echo "<option value='{$code}' {$selected}>{$label}</option>";
+						}
+						?>
+					</select>
+
+					<input
+						type="number"
+						step="0.01"
+						id="profit_per_unit_input"
+						value="<?php echo esc_attr( $profit_per_unit_value ); ?>"
+						placeholder="<?php echo esc_attr( $placeholders['profit_per_unit'] ?? '' ); ?>"
+						style="width: 60%;"
+					/>
+				</div>
 			</div>
+
 
 			<hr>
 

@@ -88,6 +88,13 @@
   border-radius: 50%;
   cursor: pointer;
 }
+#calculator .inputs .input-group select#profit_per_unit_currency {
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid white;
+  color: white;
+  font-size: 16px;
+}
 #calculator .inputs .input-group .output-value {
   color: white;
   font-size: 16px;
