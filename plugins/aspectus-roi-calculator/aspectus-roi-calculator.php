@@ -119,57 +119,67 @@ add_action( 'enqueue_block_editor_assets', 'aspectus_roi_calculator_localize_acf
 // Rendering the Calculator on the frontend
 
 function aspectus_roi_calculator_render_callback( $attributes ) {
-	// Extract attributes or set defaults
-	$percentage_increase = isset( $attributes['percentageIncrease'] ) ? intval( $attributes['percentageIncrease'] ) : 0;
-	$background_colour = isset( $attributes['backgroundColour'] ) ? sanitize_hex_color( $attributes['backgroundColour'] ) : '#ffffff';
+    $post_id = get_the_ID();
+    $acf_fields = get_fields( $post_id );
 
-	// Output starts here
-	ob_start();
-	?>
-	<div class="aspectus-roi-calculator" style="background-color: <?php echo esc_attr( $background_colour ); ?>; padding: 1rem; max-width: 400px;">
-		<label for="percentage_increase_slider"><?php esc_html_e( 'Percentage Increase', 'aspectus-roi-calculator' ); ?>:</label>
-		<input
-			type="range"
-			id="percentage_increase_slider"
-			min="0"
-			max="100"
-			value="<?php echo esc_attr( $percentage_increase ); ?>"
-			style="width: 100%;"
-		/>
-		<div>
-			<span id="percentage_increase_value"><?php echo esc_html( $percentage_increase ); ?></span>%
-		</div>
+    $percentage_increase = isset( $acf_fields['percentage_increase'] ) && $acf_fields['percentage_increase'] !== '' ? intval( $acf_fields['percentage_increase'] ) : 0;
+    $hours = isset( $acf_fields['hours'] ) ? intval( $acf_fields['hours'] ) : 0;
+    $days = isset( $acf_fields['days'] ) ? intval( $acf_fields['days'] ) : 0;
+    $weeks_per_year = isset( $acf_fields['weeks_per_year'] ) ? intval( $acf_fields['weeks_per_year'] ) : 0;
+    $units_per_hour = isset( $acf_fields['units_per_hour'] ) ? intval( $acf_fields['units_per_hour'] ) : 0;
 
-		<!-- Placeholder for live calculation output -->
-		<div id="roi_result" style="margin-top: 1rem; font-weight: bold;">
-			<?php
-			// Example calculation placeholder
-			echo sprintf(
-				/* translators: %d: percentage increase */
-				esc_html__( 'Estimated ROI increase: %d%%', 'aspectus-roi-calculator' ),
-				$percentage_increase
-			);
-			?>
-		</div>
-	</div>
+    $profit_per_unit = isset( $acf_fields['profit_per_unit'] ) ? $acf_fields['profit_per_unit'] : [];
+    $profit_per_unit_value = isset( $profit_per_unit['value'] ) ? floatval( $profit_per_unit['value'] ) : 0;
 
-	<script>
-		(() => {
-			const slider = document.getElementById('percentage_increase_slider');
-			const output = document.getElementById('percentage_increase_value');
-			const roiResult = document.getElementById('roi_result');
+    $background_colour = isset( $acf_fields['background_colour'] ) ? $acf_fields['background_colour'] : '#fff';
+    $slider_colour = isset( $acf_fields['slider_colour'] ) ? $acf_fields['slider_colour'] : '#0073aa';
+    $text_colour = isset( $acf_fields['text_colour'] ) ? $acf_fields['text_colour'] : '#000';
 
-			slider.addEventListener('input', (e) => {
-				const val = e.target.value;
-				output.textContent = val;
-				// Update your live calculation here - just an example formula
-				roiResult.textContent = `Estimated ROI increase: ${val}%`;
-			});
-		})();
-	</script>
-	<?php
-	return ob_get_clean();
+    $percentage_label = isset( $acf_fields['percentage_increase_label'] ) ? $acf_fields['percentage_increase_label'] : 'Percentage Increase';
+
+    ob_start();
+    ?>
+    <div id="calculator" class="aspectus-roi-calculator" style="background-color: <?php echo esc_attr( $background_colour ); ?>; color: <?php echo esc_attr( $text_colour ); ?>;">
+        <label for="percentage_increase_slider"><?php echo esc_html( $percentage_label ); ?>:</label>
+        <input
+            type="range"
+            id="percentage_increase_slider"
+            min="0"
+            max="100"
+            value="<?php echo esc_attr( $percentage_increase ); ?>"
+            style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>"
+        />
+        <div>
+            <span id="percentage_increase_value"><?php echo esc_html( $percentage_increase ); ?></span>%
+        </div>
+
+        <div id="roi_result" style="margin-top: 1rem; font-weight: bold;">
+            <?php
+            echo sprintf(
+                esc_html__( 'Estimated ROI increase: %d%%', 'aspectus-roi-calculator' ),
+                $percentage_increase
+            );
+            ?>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const slider = document.getElementById('percentage_increase_slider');
+            const output = document.getElementById('percentage_increase_value');
+            const roiResult = document.getElementById('roi_result');
+
+            slider.addEventListener('input', (e) => {
+                const val = e.target.value;
+                output.textContent = val;
+                roiResult.textContent = `Estimated ROI increase: ${val}%`;
+            });
+        })();
+    </script>
+    <?php
+    return ob_get_clean();
 }
+
 
 // Register block type with the render callback
 register_block_type(
