@@ -65,120 +65,127 @@ add_action( 'init', 'aspectus_aspectus_roi_calculator_block_init' );
 
 // Localising ACF Field data for use in the CMS
 
+// Localising ACF Field data for use in the CMS
 function aspectus_roi_calculator_localize_acf_data() {
-	if ( ! function_exists( 'get_field' ) || ! is_admin() ) {
-		return;
-	}
+	if ( ! function_exists( 'get_field_object' ) || ! is_admin() ) return;
 
 	global $post;
-	if ( ! $post ) {
-		return;
+	if ( ! $post ) return;
+
+	// Helper to get field data with fallback
+	function get_field_data($key, $post_id) {
+		$field = get_field_object($key, $post_id);
+		return [
+			'value' => $field['value'] ?? '',
+			'label' => $field['label'] ?? '',
+			'placeholder' => $field['placeholder'] ?? '',
+			'min' => $field['min'] ?? 0,
+			'max' => $field['max'] ?? 100,
+		];
 	}
 
-	// Collect all the ACF field data you want
-	$acf_data = array(
-		'percentage_increase'     => get_field( 'percentage_increase', $post->ID ),
-		'hours'                   => get_field( 'hours', $post->ID ),
-		'days'                    => get_field( 'days', $post->ID ),
-		'weeks_per_year'          => get_field( 'weeks_per_year', $post->ID ),
-		'units_per_hour'          => get_field( 'units_per_hour', $post->ID ),
-		'profit_per_unit'         => get_field( 'profit_per_unit', $post->ID ), // Group field
-
-		'labels' => array(
-			'percentage_increase'           => get_field( 'percentage_increase_label', $post->ID ),
-			'percentage_increase_placeholder' => get_field( 'percentage_increase_placeholder', $post->ID ),
-			'hours'                         => get_field( 'hours_label', $post->ID ),
-			'hours_placeholder'             => get_field( 'hours_placeholder', $post->ID ),
-			'days'                          => get_field( 'days_label', $post->ID ),
-			'days_placeholder'              => get_field( 'days_placeholder', $post->ID ),
-			'weeks_per_year'                => get_field( 'weeks_per_year_label', $post->ID ),
-			'weeks_per_year_placeholder'    => get_field( 'weeks_per_year_placeholder', $post->ID ),
-			'units_per_hour'                => get_field( 'units_per_hour_label', $post->ID ),
-			'units_per_hour_placeholder'    => get_field( 'units_per_hour_placeholder', $post->ID ),
-			'profit_per_unit'               => get_field( 'profit_per_unit_label', $post->ID ),
-			'profit_per_unit_placeholder'   => get_field( 'profit_per_unit_placeholder', $post->ID ),
+	$acf_data = [
+		'percentage_increase' => array(
+		'value' => get_field( 'percentage_increase', $post->ID ),
+		'min'   => get_field( 'percentage_increase_min', $post->ID ),
+		'max'   => get_field( 'percentage_increase_max', $post->ID ),
+		'label' => get_field( 'percentage_increase_label', $post->ID ),
+		'placeholder' => get_field( 'percentage_increase_placeholder', $post->ID ),
 		),
 
-		'appearance' => array(
-			'background_colour' => get_field( 'background_colour', $post->ID ),
-			'slider_colour'     => get_field( 'slider_colour', $post->ID ),
-			'text_colour'       => get_field( 'text_colour', $post->ID ),
-		),
-	);
+		'hours'               => get_field_data('hours', $post->ID),
+		'days'                => get_field_data('days', $post->ID),
+		'weeks_per_year'      => get_field_data('weeks_per_year', $post->ID),
+		'units_per_hour'      => get_field_data('units_per_hour', $post->ID),
+		'profit_per_unit'     => get_field_data('profit_per_unit', $post->ID),
 
-	// This handle MUST match the one generated in your /build/index.asset.php
+		// Appearance settings
+		'appearance' => [
+			'background_colour' => get_field('background_colour', $post->ID),
+			'slider_colour'     => get_field('slider_colour', $post->ID),
+			'text_colour'       => get_field('text_colour', $post->ID),
+		],
+	];
+
 	wp_localize_script(
 		'aspectus-roi-calculator-editor-script',
 		'aspectusACFData',
 		$acf_data
 	);
 }
+
 add_action( 'enqueue_block_editor_assets', 'aspectus_roi_calculator_localize_acf_data' );
 
 
 // Rendering the Calculator on the frontend
 
-function aspectus_roi_calculator_render_callback( $attributes ) {
-    $post_id = get_the_ID();
-    $acf_fields = get_fields( $post_id );
+function aspectus_roi_calculator_render_callback( $attributes, $content, $block ) {
+	$post_id = get_the_ID();
+	$acf_fields = get_fields( $post_id );
 
-    $percentage_increase = isset( $acf_fields['percentage_increase'] ) && $acf_fields['percentage_increase'] !== '' ? intval( $acf_fields['percentage_increase'] ) : 0;
-    $hours = isset( $acf_fields['hours'] ) ? intval( $acf_fields['hours'] ) : 0;
-    $days = isset( $acf_fields['days'] ) ? intval( $acf_fields['days'] ) : 0;
-    $weeks_per_year = isset( $acf_fields['weeks_per_year'] ) ? intval( $acf_fields['weeks_per_year'] ) : 0;
-    $units_per_hour = isset( $acf_fields['units_per_hour'] ) ? intval( $acf_fields['units_per_hour'] ) : 0;
+	// Helper to merge ACF with attributes
+	$val = fn($key, $default = 0) =>
+		$acf_fields[$key] ?? ($attributes[$key] ?? $default);
 
-    $profit_per_unit = isset( $acf_fields['profit_per_unit'] ) ? $acf_fields['profit_per_unit'] : [];
-    $profit_per_unit_value = isset( $profit_per_unit['value'] ) ? floatval( $profit_per_unit['value'] ) : 0;
+	$percentage = $val('percentage_increase');
+	$hours = $val('hours');
+	$days = $val('days');
+	$weeks = $val('weeks_per_year');
+	$units = $val('units_per_hour');
+	$profit = is_array($acf_fields['profit_per_unit'] ?? null)
+		? floatval($acf_fields['profit_per_unit']['value'] ?? 0)
+		: floatval($val('profit_per_unit'));
 
-    $background_colour = isset( $acf_fields['background_colour'] ) ? $acf_fields['background_colour'] : '#fff';
-    $slider_colour = isset( $acf_fields['slider_colour'] ) ? $acf_fields['slider_colour'] : '#0073aa';
-    $text_colour = isset( $acf_fields['text_colour'] ) ? $acf_fields['text_colour'] : '#000';
+	$bg = $val('background_colour', '#fff');
+	$text = $val('text_colour', '#000');
+	$slider = $val('slider_colour', '#0073aa');
 
-    $percentage_label = isset( $acf_fields['percentage_increase_label'] ) ? $acf_fields['percentage_increase_label'] : 'Percentage Increase';
+	ob_start();
+	?>
+	<div id="calculator" class="aspectus-roi-calculator" style="background-color: <?= esc_attr($bg) ?>; color: <?= esc_attr($text) ?>; padding: 1rem;">
+		<label for="percentage_increase_slider">Percentage Increase:</label>
+		<input
+			type="range"
+			id="percentage_increase_slider"
+			min="0"
+			max="100"
+			value="<?= esc_attr($percentage) ?>"
+			style="width: 100%; accent-color: <?= esc_attr($slider) ?>"
+		/>
+		<div class="output-value">
+			<span id="percentage_increase_value"><?= esc_html($percentage) ?></span>%
+		</div>
 
-    ob_start();
-    ?>
-    <div id="calculator" class="aspectus-roi-calculator" style="background-color: <?php echo esc_attr( $background_colour ); ?>; color: <?php echo esc_attr( $text_colour ); ?>;">
-        <label for="percentage_increase_slider"><?php echo esc_html( $percentage_label ); ?>:</label>
-        <input
-            type="range"
-            id="percentage_increase_slider"
-            min="0"
-            max="100"
-            value="<?php echo esc_attr( $percentage_increase ); ?>"
-            style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>"
-        />
-        <div>
-            <span id="percentage_increase_value"><?php echo esc_html( $percentage_increase ); ?></span>%
-        </div>
+		<div style="margin-top: 1rem;">
+			<p><strong>Hours:</strong> <?= esc_html($hours) ?></p>
+			<p><strong>Days:</strong> <?= esc_html($days) ?></p>
+			<p><strong>Weeks/Year:</strong> <?= esc_html($weeks) ?></p>
+			<p><strong>Units/Hour:</strong> <?= esc_html($units) ?></p>
+			<p><strong>Profit/Unit:</strong> £<?= esc_html($profit) ?></p>
+		</div>
 
-        <div id="roi_result" style="margin-top: 1rem; font-weight: bold;">
-            <?php
-            echo sprintf(
-                esc_html__( 'Estimated ROI increase: %d%%', 'aspectus-roi-calculator' ),
-                $percentage_increase
-            );
-            ?>
-        </div>
-    </div>
+		<div id="roi_result" style="margin-top: 1rem; font-weight: bold;">
+			Estimated ROI increase: <?= esc_html($percentage) ?>%
+		</div>
+	</div>
 
-    <script>
-        (() => {
-            const slider = document.getElementById('percentage_increase_slider');
-            const output = document.getElementById('percentage_increase_value');
-            const roiResult = document.getElementById('roi_result');
+	<script>
+		(() => {
+			const slider = document.getElementById('percentage_increase_slider');
+			const output = document.getElementById('percentage_increase_value');
+			const roiResult = document.getElementById('roi_result');
 
-            slider.addEventListener('input', (e) => {
-                const val = e.target.value;
-                output.textContent = val;
-                roiResult.textContent = `Estimated ROI increase: ${val}%`;
-            });
-        })();
-    </script>
-    <?php
-    return ob_get_clean();
+			slider.addEventListener('input', (e) => {
+				const val = e.target.value;
+				output.textContent = val;
+				roiResult.textContent = `Estimated ROI increase: ${val}%`;
+			});
+		})();
+	</script>
+	<?php
+	return ob_get_clean();
 }
+
 
 
 // Register block type with the render callback

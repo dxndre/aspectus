@@ -26,9 +26,37 @@ return array(
 				'type' => 'number',
 				'default' => 0
 			),
+			'hours' => array(
+				'type' => 'number',
+				'default' => 0
+			),
+			'days' => array(
+				'type' => 'number',
+				'default' => 0
+			),
+			'weeksPerYear' => array(
+				'type' => 'number',
+				'default' => 0
+			),
+			'unitsPerHour' => array(
+				'type' => 'number',
+				'default' => 0
+			),
+			'profitPerUnit' => array(
+				'type' => 'number',
+				'default' => 0
+			),
 			'backgroundColour' => array(
 				'type' => 'string',
 				'default' => '#fff'
+			),
+			'sliderColour' => array(
+				'type' => 'string',
+				'default' => '#0073aa'
+			),
+			'textColour' => array(
+				'type' => 'string',
+				'default' => '#000'
 			)
 		)
 	)

@@ -21,9 +21,37 @@
       "type": "number",
       "default": 0
     },
+    "hours": {
+      "type": "number",
+      "default": 0
+    },
+    "days": {
+      "type": "number",
+      "default": 0
+    },
+    "weeksPerYear": {
+      "type": "number",
+      "default": 0
+    },
+    "unitsPerHour": {
+      "type": "number",
+      "default": 0
+    },
+    "profitPerUnit": {
+      "type": "number",
+      "default": 0
+    },
     "backgroundColour": {
       "type": "string",
       "default": "#fff"
+    },
+    "sliderColour": {
+      "type": "string",
+      "default": "#0073aa"
+    },
+    "textColour": {
+      "type": "string",
+      "default": "#000"
     }
   }
 }

@@ -1,14 +1,21 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "aspectus/aspectus-roi-calculator",
+	"name": "aspectus/roi-calculator",
+	"version": "1.0.0",
 	"title": "Aspectus ROI Calculator",
 	"category": "widgets",
 	"icon": "chart-line",
-	"description": "A reusable ROI calculator block using ACF and interactive settings.",
+	"description": "A reusable, dynamic ROI calculator block for WordPress with editable inputs and live results.",
+	"example": {},
 	"supports": {
 		"html": false
 	},
+	"textdomain": "aspectus-roi-calculator",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js",
 	"attributes": {
 		"percentageIncrease": {
 			"type": "number",
@@ -36,7 +43,7 @@
 		},
 		"backgroundColour": {
 			"type": "string",
-			"default": "#ffffff"
+			"default": "#fff"
 		},
 		"sliderColour": {
 			"type": "string",
@@ -44,11 +51,7 @@
 		},
 		"textColour": {
 			"type": "string",
-			"default": "#000000"
+			"default": "#000"
 		}
-	},
-	"editorScript": "aspectus-roi-calculator-editor-script",
-	"editorStyle": "aspectus-roi-calculator-editor-style",
-	"style": "aspectus-roi-calculator-style",
-	"render": "file:./render.php"
+	}
 }

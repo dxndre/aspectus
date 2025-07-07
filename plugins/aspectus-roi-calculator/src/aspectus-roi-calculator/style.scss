@@ -13,11 +13,18 @@
 
 #calculator {
 	&.aspectus-roi-calculator {
-		padding: 1rem; 
-		max-width: 500px;
+		background-color: #296dfc;
+		padding: 2rem 3rem; 
+		max-width: 800px;
+		border-radius: 20px;
 	}
 
 	label {
+		color: white;
 		font-size: 16px;
+	}
+
+	.output-value {
+		color: white;
 	}
 }
