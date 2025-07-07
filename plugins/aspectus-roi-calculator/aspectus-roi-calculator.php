@@ -114,3 +114,67 @@ function aspectus_roi_calculator_localize_acf_data() {
 	);
 }
 add_action( 'enqueue_block_editor_assets', 'aspectus_roi_calculator_localize_acf_data' );
+
+
+// Rendering the Calculator on the frontend
+
+function aspectus_roi_calculator_render_callback( $attributes ) {
+	// Extract attributes or set defaults
+	$percentage_increase = isset( $attributes['percentageIncrease'] ) ? intval( $attributes['percentageIncrease'] ) : 0;
+	$background_colour = isset( $attributes['backgroundColour'] ) ? sanitize_hex_color( $attributes['backgroundColour'] ) : '#ffffff';
+
+	// Output starts here
+	ob_start();
+	?>
+	<div class="aspectus-roi-calculator" style="background-color: <?php echo esc_attr( $background_colour ); ?>; padding: 1rem; max-width: 400px;">
+		<label for="percentage_increase_slider"><?php esc_html_e( 'Percentage Increase', 'aspectus-roi-calculator' ); ?>:</label>
+		<input
+			type="range"
+			id="percentage_increase_slider"
+			min="0"
+			max="100"
+			value="<?php echo esc_attr( $percentage_increase ); ?>"
+			style="width: 100%;"
+		/>
+		<div>
+			<span id="percentage_increase_value"><?php echo esc_html( $percentage_increase ); ?></span>%
+		</div>
+
+		<!-- Placeholder for live calculation output -->
+		<div id="roi_result" style="margin-top: 1rem; font-weight: bold;">
+			<?php
+			// Example calculation placeholder
+			echo sprintf(
+				/* translators: %d: percentage increase */
+				esc_html__( 'Estimated ROI increase: %d%%', 'aspectus-roi-calculator' ),
+				$percentage_increase
+			);
+			?>
+		</div>
+	</div>
+
+	<script>
+		(() => {
+			const slider = document.getElementById('percentage_increase_slider');
+			const output = document.getElementById('percentage_increase_value');
+			const roiResult = document.getElementById('roi_result');
+
+			slider.addEventListener('input', (e) => {
+				const val = e.target.value;
+				output.textContent = val;
+				// Update your live calculation here - just an example formula
+				roiResult.textContent = `Estimated ROI increase: ${val}%`;
+			});
+		})();
+	</script>
+	<?php
+	return ob_get_clean();
+}
+
+// Register block type with the render callback
+register_block_type(
+	__DIR__ . '/build/aspectus-roi-calculator',
+	[
+		'render_callback' => 'aspectus_roi_calculator_render_callback',
+	]
+);
