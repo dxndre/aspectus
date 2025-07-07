@@ -119,27 +119,42 @@ add_action( 'enqueue_block_editor_assets', 'aspectus_roi_calculator_localize_acf
 
 // Rendering the Calculator on the frontend
 
-function aspectus_roi_calculator_render_callback( $attributes ) {
+function aspectus_roi_calculator_render_callback( $attributes, $content = '', $block = null ) {
     $post_id = get_the_ID();
-    $acf_fields = get_fields( $post_id );
 
-    // Fallback values
-    $percentage_increase = intval( $acf_fields['percentage_increase'] ?? 0 );
-    $hours = intval( $acf_fields['hours'] ?? 0 );
-    $days = intval( $acf_fields['days'] ?? 0 );
-    $weeks_per_year = intval( $acf_fields['weeks_per_year'] ?? 0 );
-    $units_per_hour = intval( $acf_fields['units_per_hour'] ?? 0 );
+    // Helper function to get ACF field value or fallback to default value in field settings
+    if ( ! function_exists( 'get_acf_value_with_default' ) ) {
+		function get_acf_value_with_default( $field_name, $post_id, $fallback = '' ) {
+			$value = get_field( $field_name, $post_id );
+			if ( ! $value ) {
+				$field_object = get_field_object( $field_name, $post_id );
+				if ( $field_object && ! empty( $field_object['default_value'] ) ) {
+					$value = $field_object['default_value'];
+				}
+			}
+			if ( ! $value ) {
+				$value = $fallback;
+			}
+			return $value;
+		}
+	}
 
-    $profit_per_unit = $acf_fields['profit_per_unit'] ?? [];
-    $profit_per_unit_value = isset( $profit_per_unit['value'] ) ? floatval( $profit_per_unit['value'] ) : 0;
+    // Get colours with fallback to ACF defaults and then hardcoded fallback
+    $background_colour = get_acf_value_with_default( 'background_colour', $post_id, '#ffffff' );
+    $slider_colour     = get_acf_value_with_default( 'slider_colour', $post_id, '#0073aa' );
+    $text_colour       = get_acf_value_with_default( 'text_colour', $post_id, '#000000' );
 
-    $background_colour = $acf_fields['background_colour'] ?? '#fff';
-	$slider_colour = isset( $acf_fields['slider_colour'] ) ? $acf_fields['slider_colour'] : '#0effa8';
-
-    $text_colour = $acf_fields['text_colour'] ?? '#000';
+    // For your other values, use block attributes or defaults as you already do:
+    $percentage_increase = intval( $attributes['percentageIncrease'] ?? 0 );
+    $hours              = intval( $attributes['hours'] ?? 0 );
+    $days               = intval( $attributes['days'] ?? 0 );
+    $weeks_per_year     = intval( $attributes['weeksPerYear'] ?? 0 );
+    $units_per_hour     = intval( $attributes['unitsPerHour'] ?? 0 );
+    $profit_per_unit_value = floatval( $attributes['profitPerUnit'] ?? 0 );
 
     ob_start();
     ?>
+
     <div id="calculator" class="aspectus-roi-calculator" style="background-color: <?php echo esc_attr( $background_colour ); ?>; color: <?php echo esc_attr( $text_colour ); ?>;">
         <?php
 		
@@ -249,11 +264,11 @@ function aspectus_roi_calculator_render_callback( $attributes ) {
 			<div class="input-group">
 				<label for="profit_per_unit_input"><strong><?php esc_html_e('Profit Per Unit', 'aspectus-roi-calculator'); ?></strong></label>
 					<input
-						type="number"
-						step="0.01"
-						id="profit_per_unit_input"
-						value="<?php echo esc_attr( number_format( $profit_per_unit_value, 2 ) ); ?>"
-						style="width: 100%; margin-bottom: 0.5rem;"
+					type="number"
+					step="0.01"
+					id="profit_per_unit_input"
+					value="<?php echo esc_attr( $profit_per_unit_value ); ?>"
+					style="width: 100%; margin-bottom: 0.5rem;"
 					/>
 			</div>
 
@@ -374,10 +389,6 @@ function aspectus_roi_calculator_render_callback( $attributes ) {
     <?php
     return ob_get_clean();
 }
-
-
-
-
 
 // Register block type with the render callback
 register_block_type(
