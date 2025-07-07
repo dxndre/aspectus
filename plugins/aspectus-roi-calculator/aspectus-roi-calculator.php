@@ -119,72 +119,204 @@ add_action( 'enqueue_block_editor_assets', 'aspectus_roi_calculator_localize_acf
 
 // Rendering the Calculator on the frontend
 
-function aspectus_roi_calculator_render_callback( $attributes, $content, $block ) {
-	$post_id = get_the_ID();
-	$acf_fields = get_fields( $post_id );
+function aspectus_roi_calculator_render_callback( $attributes ) {
+    $post_id = get_the_ID();
+    $acf_fields = get_fields( $post_id );
 
-	// Helper to merge ACF with attributes
-	$val = fn($key, $default = 0) =>
-		$acf_fields[$key] ?? ($attributes[$key] ?? $default);
+    // Fallback values
+    $percentage_increase = intval( $acf_fields['percentage_increase'] ?? 0 );
+    $hours = intval( $acf_fields['hours'] ?? 0 );
+    $days = intval( $acf_fields['days'] ?? 0 );
+    $weeks_per_year = intval( $acf_fields['weeks_per_year'] ?? 0 );
+    $units_per_hour = intval( $acf_fields['units_per_hour'] ?? 0 );
 
-	$percentage = $val('percentage_increase');
-	$hours = $val('hours');
-	$days = $val('days');
-	$weeks = $val('weeks_per_year');
-	$units = $val('units_per_hour');
-	$profit = is_array($acf_fields['profit_per_unit'] ?? null)
-		? floatval($acf_fields['profit_per_unit']['value'] ?? 0)
-		: floatval($val('profit_per_unit'));
+    $profit_per_unit = $acf_fields['profit_per_unit'] ?? [];
+    $profit_per_unit_value = isset( $profit_per_unit['value'] ) ? floatval( $profit_per_unit['value'] ) : 0;
 
-	$bg = $val('background_colour', '#fff');
-	$text = $val('text_colour', '#000');
-	$slider = $val('slider_colour', '#0073aa');
+    $background_colour = $acf_fields['background_colour'] ?? '#fff';
+    $slider_colour = $acf_fields['slider_colour'] ?? '#0073aa';
+    $text_colour = $acf_fields['text_colour'] ?? '#000';
 
-	ob_start();
-	?>
-	<div id="calculator" class="aspectus-roi-calculator" style="background-color: <?= esc_attr($bg) ?>; color: <?= esc_attr($text) ?>; padding: 1rem;">
-		<label for="percentage_increase_slider">Percentage Increase:</label>
-		<input
-			type="range"
-			id="percentage_increase_slider"
-			min="0"
-			max="100"
-			value="<?= esc_attr($percentage) ?>"
-			style="width: 100%; accent-color: <?= esc_attr($slider) ?>"
-		/>
-		<div class="output-value">
-			<span id="percentage_increase_value"><?= esc_html($percentage) ?></span>%
+    ob_start();
+    ?>
+    <div id="calculator" class="aspectus-roi-calculator" style="background-color: <?php echo esc_attr( $background_colour ); ?>; color: <?php echo esc_attr( $text_colour ); ?>;">
+        <?php
+		
+        // Helper to output sliders
+        function slider_field($id, $label, $value, $min = 0, $max = 100, $slider_colour) {
+            ?>
+            <label for="<?php echo esc_attr($id); ?>"><strong><?php echo esc_html($label); ?></strong></label>
+            <input
+                type="range"
+                id="<?php echo esc_attr($id); ?>"
+                min="<?php echo esc_attr($min); ?>"
+                max="<?php echo esc_attr($max); ?>"
+                value="<?php echo esc_attr($value); ?>"
+                style="width: 100%; accent-color: <?php echo esc_attr($slider_colour); ?>; margin-bottom: 0.25rem;"
+            />
+            <div class="output-value">
+                <span id="<?php echo esc_attr($id); ?>_value"><?php echo esc_html($value); ?></span>
+            </div>
+            <?php
+        }
+        ?>
+
+		<div class="inputs">
+			<div class="input-group">
+				<label for="percentage_increase_slider"><strong><?php esc_html_e('Percentage Increase (%):', 'aspectus-roi-calculator'); ?></strong></label>
+				<input
+					type="range"
+					id="percentage_increase_slider"
+					min="0"
+					max="100"
+					value="<?php echo esc_attr( $percentage_increase ); ?>"
+					style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
+				/>
+				<div class="output-value">
+					<span id="percentage_increase_value"><?php echo esc_html( $percentage_increase ); ?></span>
+				</div>
+			</div>
+
+			<div class="input-group">
+				<label for="hours_slider"><strong><?php esc_html_e('Hours:', 'aspectus-roi-calculator'); ?></strong></label>
+				<input
+					type="range"
+					id="hours_slider"
+					min="0"
+					max="24"
+					value="<?php echo esc_attr( $hours ); ?>"
+					style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
+				/>
+				<div class="output-value">
+					<span id="hours_value"><?php echo esc_html( $hours ); ?></span>
+				</div>
+			</div>
+
+			<div class="input-group">
+				<label for="days_slider"><strong><?php esc_html_e('Days:', 'aspectus-roi-calculator'); ?></strong></label>
+				<input
+					type="range"
+					id="days_slider"
+					min="0"
+					max="7"
+					value="<?php echo esc_attr( $days ); ?>"
+					style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
+				/>
+				<div class="output-value">
+					<span id="days_value"><?php echo esc_html( $days ); ?></span>
+				</div>
+			</div>
+
+			<div class="input-group">
+				<label for="weeks_per_year_slider"><strong><?php esc_html_e('Weeks/Year:', 'aspectus-roi-calculator'); ?></strong></label>
+				<input
+					type="range"
+					id="weeks_per_year_slider"
+					min="0"
+					max="52"
+					value="<?php echo esc_attr( $weeks_per_year ); ?>"
+					style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
+				/>
+				<div class="output-value">
+					<span id="weeks_per_year_value"><?php echo esc_html( $weeks_per_year ); ?></span>
+				</div>
+			</div>
+
+			<div class="input-group">
+				<label for="units_per_hour_input"><strong><?php esc_html_e('Units/Hour:', 'aspectus-roi-calculator'); ?></strong></label>
+					<input
+						type="number"
+						id="units_per_hour_input"
+						value="<?php echo esc_attr( $units_per_hour ); ?>"
+						style="width: 100%; margin-bottom: 0.5rem;"
+					/>
+			</div>
+
+			<div class="input-group">
+				<label for="profit_per_unit_input"><strong><?php esc_html_e('Profit/Unit (£):', 'aspectus-roi-calculator'); ?></strong></label>
+					<input
+						type="number"
+						step="0.01"
+						id="profit_per_unit_input"
+						value="<?php echo esc_attr( number_format( $profit_per_unit_value, 2 ) ); ?>"
+						style="width: 100%; margin-bottom: 0.5rem;"
+					/>
+			</div>
+
+			<div class="input-group">
+				<div id="roi_result" style="margin-top: 1rem; font-weight: bold;">
+						<?php echo esc_html__( 'Estimated ROI increase: 0.00', 'aspectus-roi-calculator' ); ?>
+					</div>
+			</div>
+	
 		</div>
 
-		<div style="margin-top: 1rem;">
-			<p><strong>Hours:</strong> <?= esc_html($hours) ?></p>
-			<p><strong>Days:</strong> <?= esc_html($days) ?></p>
-			<p><strong>Weeks/Year:</strong> <?= esc_html($weeks) ?></p>
-			<p><strong>Units/Hour:</strong> <?= esc_html($units) ?></p>
-			<p><strong>Profit/Unit:</strong> £<?= esc_html($profit) ?></p>
-		</div>
-
-		<div id="roi_result" style="margin-top: 1rem; font-weight: bold;">
-			Estimated ROI increase: <?= esc_html($percentage) ?>%
-		</div>
 	</div>
 
-	<script>
-		(() => {
-			const slider = document.getElementById('percentage_increase_slider');
-			const output = document.getElementById('percentage_increase_value');
-			const roiResult = document.getElementById('roi_result');
+    <script>
+        (() => {
+            const getVal = id => Number(document.getElementById(id)?.value || 0);
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
-			slider.addEventListener('input', (e) => {
-				const val = e.target.value;
-				output.textContent = val;
-				roiResult.textContent = `Estimated ROI increase: ${val}%`;
+            const updateROI = () => {
+                const percentage = getVal('percentage_increase_slider');
+                const hours = getVal('hours_slider');
+                const days = getVal('days_slider');
+                const weeks = getVal('weeks_per_year_slider');
+                const units = getVal('units_per_hour_input');
+                const profit = getVal('profit_per_unit_input');
+
+                // Custom ROI formula (adjust as needed)
+                const roi = (percentage / 100) * hours * days * weeks * units * profit;
+
+                setText('percentage_increase_slider_value', percentage);
+                setText('hours_slider_value', hours);
+                setText('days_slider_value', days);
+                setText('weeks_per_year_slider_value', weeks);
+
+                const roiOutput = document.getElementById('roi_result');
+                if (roiOutput) roiOutput.textContent = `Estimated ROI increase: £${roi.toFixed(2)}`;
+            };
+
+            const inputs = [
+                'percentage_increase_slider',
+                'hours_slider',
+                'days_slider',
+                'weeks_per_year_slider',
+                'units_per_hour_input',
+                'profit_per_unit_input'
+            ];
+
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', updateROI);
+            });
+
+			const sliders = [
+				{ id: 'percentage_increase_slider', output: 'percentage_increase_value', suffix: '%' },
+				{ id: 'hours_slider', output: 'hours_value' },
+				{ id: 'days_slider', output: 'days_value' },
+				{ id: 'weeks_per_year_slider', output: 'weeks_per_year_value' },
+			];
+
+			sliders.forEach(({ id, output, suffix = '' }) => {
+				const slider = document.getElementById(id);
+				const value = document.getElementById(output);
+				if (slider && value) {
+					slider.addEventListener('input', () => {
+						value.textContent = slider.value + suffix;
+					});
+				}
 			});
-		})();
-	</script>
-	<?php
-	return ob_get_clean();
+
+            updateROI();
+        })();
+    </script>
+    <?php
+    return ob_get_clean();
 }
+
+
 
 
 

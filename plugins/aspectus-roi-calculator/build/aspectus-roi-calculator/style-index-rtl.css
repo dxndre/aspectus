@@ -1,1 +1,48 @@
-.wp-block-aspectus-aspectus-roi-calculator{background-color:#21759b;color:#fff;padding:2px}#calculator.aspectus-roi-calculator{background-color:#296dfc;border-radius:20px;max-width:800px;padding:2rem 3rem}#calculator label{color:#fff;font-size:16px}#calculator .output-value{color:#fff}
+/*!***************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/aspectus-roi-calculator/style.scss ***!
+  \***************************************************************************************************************************************************************************************************************************************************************/
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+.wp-block-aspectus-aspectus-roi-calculator {
+  background-color: #21759b;
+  color: #fff;
+  padding: 2px;
+}
+
+#calculator.aspectus-roi-calculator {
+  background-color: #296dfc;
+  padding: 2rem 3rem;
+  max-width: 800px;
+  border-radius: 20px;
+}
+#calculator .inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 3rem;
+}
+#calculator .inputs .input-group {
+  flex: 1 1 calc(50% - 3rem);
+  box-sizing: border-box;
+}
+#calculator .inputs .input-group label {
+  color: white;
+  font-size: 16px;
+}
+#calculator .inputs .input-group input {
+  font-size: 22px;
+  color: white;
+  padding: 20px;
+  max-width: calc(100% - 40px);
+}
+#calculator .inputs .input-group input[type=number] {
+  border: none;
+  border-bottom: 1px solid white;
+  background-color: transparent;
+}
+#calculator .output-value {
+  color: white;
+}

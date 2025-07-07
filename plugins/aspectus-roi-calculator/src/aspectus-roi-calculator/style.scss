@@ -19,10 +19,36 @@
 		border-radius: 20px;
 	}
 
-	label {
-		color: white;
-		font-size: 16px;
+	.inputs {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem 3rem;
+
+		.input-group {
+			flex: 1 1 calc(50% - 3rem);
+			box-sizing: border-box;
+
+			label {
+				color: white;
+				font-size: 16px;
+			}
+
+			input {
+				font-size: 22px;
+				color: white;
+				padding: 20px;
+				max-width: calc(100% - 40px);
+
+				&[type="number"] {
+					border: none;
+					border-bottom: 1px solid white;
+					background-color: transparent;
+				}
+			}
+		}
 	}
+
+	
 
 	.output-value {
 		color: white;
