@@ -64,8 +64,6 @@ add_action( 'init', 'aspectus_aspectus_roi_calculator_block_init' );
 
 
 // Localising ACF Field data for use in the CMS
-
-// Localising ACF Field data for use in the CMS
 function aspectus_roi_calculator_localize_acf_data() {
 	if ( ! function_exists( 'get_field_object' ) || ! is_admin() ) return;
 
@@ -85,13 +83,13 @@ function aspectus_roi_calculator_localize_acf_data() {
 	}
 
 	$acf_data = [
-		'percentage_increase' => array(
-		'value' => get_field( 'percentage_increase', $post->ID ),
-		'min'   => get_field( 'percentage_increase_min', $post->ID ),
-		'max'   => get_field( 'percentage_increase_max', $post->ID ),
-		'label' => get_field( 'percentage_increase_label', $post->ID ),
-		'placeholder' => get_field( 'percentage_increase_placeholder', $post->ID ),
-		),
+		'percentage_increase' => [
+			'value' => get_field( 'percentage_increase', $post->ID ),
+			'min'   => get_field( 'percentage_increase_min', $post->ID ),
+			'max'   => get_field( 'percentage_increase_max', $post->ID ),
+			'label' => get_field( 'percentage_increase_label', $post->ID ),
+			'placeholder' => get_field( 'percentage_increase_placeholder', $post->ID ),
+		],
 
 		'hours'               => get_field_data('hours', $post->ID),
 		'days'                => get_field_data('days', $post->ID),
@@ -104,6 +102,15 @@ function aspectus_roi_calculator_localize_acf_data() {
 			'background_colour' => get_field('background_colour', $post->ID),
 			'slider_colour'     => get_field('slider_colour', $post->ID),
 			'text_colour'       => get_field('text_colour', $post->ID),
+		],
+
+		// New: Result labels
+		'results_labels' => [
+			'profit_per_year'       => get_field('profit_per_year_label', $post->ID) ?: 'Profit per year',
+			'units_per_year'        => get_field('units_per_year_label', $post->ID) ?: 'Units per year',
+			'hours_in_week'         => get_field('hours_in_week_label', $post->ID) ?: 'Hours in a Week 24/7',
+			'extra_hours'           => get_field('extra_hours_label', $post->ID) ?: 'Extra Hours',
+			'extra_units_per_week'  => get_field('extra_units_per_week_label', $post->ID) ?: 'Extra Units Per Week',
 		],
 	];
 
@@ -139,18 +146,37 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 		}
 	}
 
-    // Get colours with fallback to ACF defaults and then hardcoded fallback
     $background_colour = get_acf_value_with_default( 'background_colour', $post_id, '#ffffff' );
     $slider_colour     = get_acf_value_with_default( 'slider_colour', $post_id, '#0073aa' );
     $text_colour       = get_acf_value_with_default( 'text_colour', $post_id, '#000000' );
 
-    // For your other values, use block attributes or defaults as you already do:
     $percentage_increase = intval( $attributes['percentageIncrease'] ?? 0 );
     $hours              = intval( $attributes['hours'] ?? 0 );
     $days               = intval( $attributes['days'] ?? 0 );
     $weeks_per_year     = intval( $attributes['weeksPerYear'] ?? 0 );
     $units_per_hour     = intval( $attributes['unitsPerHour'] ?? 0 );
     $profit_per_unit_value = floatval( $attributes['profitPerUnit'] ?? 0 );
+
+	// Labels
+	$acf = $block->context['acf_data'] ?? []; // fallback if needed
+
+	$labels = [
+		'percentage_increase' => get_field('percentage_increase_label', $post_id),
+		'hours'               => get_field('hours_label', $post_id),
+		'days'                => get_field('days_label', $post_id),
+		'weeks_per_year'      => get_field('weeks_per_year_label', $post_id),
+		'units_per_hour'      => get_field('units_per_hour_label', $post_id),
+		'profit_per_unit'     => get_field('profit_per_unit_label', $post_id),
+	];
+	
+	$placeholders = [
+		'percentage_increase' => get_field('percentage_increase_placeholder', $post_id),
+		'hours'               => get_field('hours_placeholder', $post_id),
+		'days'                => get_field('days_placeholder', $post_id),
+		'weeks_per_year'      => get_field('weeks_per_year_placeholder', $post_id),
+		'units_per_hour'      => get_field('units_per_hour_placeholder', $post_id),
+		'profit_per_unit'     => get_field('profit_per_unit_placeholder', $post_id),
+	];
 
     ob_start();
     ?>
@@ -184,15 +210,16 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 
 		<div class="inputs">
 			<div class="input-group">
-				<label for="percentage_increase_slider"><strong><?php esc_html_e('Percentage Increase', 'aspectus-roi-calculator'); ?></strong></label>
+			<label for="percentage_increase_slider"><strong><?php echo esc_html($labels['percentage_increase']); ?></strong></label>
 				<div class="slider">
 					<input
-						type="range"
-						id="percentage_increase_slider"
-						min="0"
-						max="100"
-						value="<?php echo esc_attr( $percentage_increase ); ?>"
-						style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
+					type="range"
+					id="percentage_increase_slider"
+					min="0"
+					max="100"
+					value="<?php echo esc_attr($percentage_increase); ?>"
+					placeholder="<?php echo esc_attr($placeholders['percentage_increase']); ?>"
+					style="width: 100%; accent-color: <?php echo esc_attr($slider_colour); ?>;"
 					/>
 					<div class="output-value">
 						<span id="percentage_increase_value"><?php echo esc_html( $percentage_increase ); ?></span>
@@ -201,7 +228,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 			</div>
 
 			<div class="input-group">
-				<label for="hours_slider"><strong><?php esc_html_e('Hours', 'aspectus-roi-calculator'); ?></strong></label>
+				<label for="hours_slider"><strong><?php echo esc_html( $labels['hours'] ); ?></strong></label>
 				<div class="slider">
 					<input
 						type="range"
@@ -218,7 +245,9 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 			</div>
 
 			<div class="input-group">
-				<label for="days_slider"><strong><?php esc_html_e('Days', 'aspectus-roi-calculator'); ?></strong></label>
+				<label for="days_slider">
+					<strong><?php echo esc_html( $labels['days'] ?? __('Days', 'aspectus-roi-calculator') ); ?></strong>
+				</label>
 				<div class="slider">
 					<input
 						type="range"
@@ -226,6 +255,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 						min="0"
 						max="7"
 						value="<?php echo esc_attr( $days ); ?>"
+						placeholder="<?php echo esc_attr( $placeholders['days'] ?? '' ); ?>"
 						style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
 					/>
 					<div class="output-value">
@@ -235,7 +265,9 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 			</div>
 
 			<div class="input-group">
-				<label for="weeks_per_year_slider"><strong><?php esc_html_e('Weeks Per Year', 'aspectus-roi-calculator'); ?></strong></label>
+				<label for="weeks_per_year_slider">
+					<strong><?php echo esc_html( $labels['weeks_per_year'] ?? __('Weeks Per Year', 'aspectus-roi-calculator') ); ?></strong>
+				</label>
 				<div class="slider">
 					<input
 						type="range"
@@ -243,6 +275,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 						min="0"
 						max="52"
 						value="<?php echo esc_attr( $weeks_per_year ); ?>"
+						placeholder="<?php echo esc_attr( $placeholders['weeks_per_year'] ?? '' ); ?>"
 						style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
 					/>
 					<div class="output-value">
@@ -252,24 +285,28 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 			</div>
 
 			<div class="input-group">
-				<label for="units_per_hour_input"><strong><?php esc_html_e('Units Per Hour', 'aspectus-roi-calculator'); ?></strong></label>
+				<label for="units_per_hour_input"><strong><?php echo esc_html($labels['units_per_hour']); ?></strong></label>
 				<input
-					type="number"
-					id="units_per_hour_input"
-					value="<?php echo esc_attr( $units_per_hour ); ?>"
-					style="width: 100%; margin-bottom: 0.5rem;"
+				type="number"
+				id="units_per_hour_input"
+				value="<?php echo esc_attr($units_per_hour); ?>"
+				placeholder="<?php echo esc_attr($placeholders['units_per_hour']); ?>"
+				style="width: 100%; margin-bottom: 0.5rem;"
 				/>
 			</div>
 
 			<div class="input-group">
-				<label for="profit_per_unit_input"><strong><?php esc_html_e('Profit Per Unit', 'aspectus-roi-calculator'); ?></strong></label>
-					<input
+				<label for="profit_per_unit_input">
+					<strong><?php echo esc_html( $labels['profit_per_unit'] ?? __('Profit Per Unit', 'aspectus-roi-calculator') ); ?></strong>
+				</label>
+				<input
 					type="number"
 					step="0.01"
 					id="profit_per_unit_input"
 					value="<?php echo esc_attr( $profit_per_unit_value ); ?>"
+					placeholder="<?php echo esc_attr( $placeholders['profit_per_unit'] ?? '' ); ?>"
 					style="width: 100%; margin-bottom: 0.5rem;"
-					/>
+				/>
 			</div>
 
 			<hr>
@@ -277,7 +314,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 			<div class="results-table">
 				<div class="row">
 					<div class="cell">
-						<span class="results-label">Profit per year</span>
+					<span class="results-label"><?php echo esc_html( $labels['profit_per_year'] ?? 'Profit per year' ); ?></span>
 						<span class="results-value" id="profit_per_year_value">£0.00</span>
 					</div>
 					<div class="cell">
@@ -321,7 +358,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 				const profitPerUnit = getVal('profit_per_unit_input');
 
 				const unitsPerYear = hours * days * weeks * unitsPerHour; // corrected variable here
-				const profitPerYear = profitPerUnit * unitsPerYear;
+				const profitPerYear = profitPerUnit * unitsPerYear / 100;
 
 				const hoursInWeek = 24 * 7; // constant = 168
 				const extraHours = (percentage / 100) * hoursInWeek;

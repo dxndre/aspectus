@@ -84,11 +84,8 @@ export default function Edit({ attributes, setAttributes }) {
 
 					<p>{__('Slider Colour')}</p>
 					<ColorPicker
-						color={sliderColour}
-						onChange={(color) =>
-							setAttributes({ sliderColour: color.hex })
-						}
-						disableAlpha
+					color={sliderColour}
+					onChange={(color) => setAttributes({ sliderColour: color.hex })}
 					/>
 
 					<p>{__('Text Colour')}</p>

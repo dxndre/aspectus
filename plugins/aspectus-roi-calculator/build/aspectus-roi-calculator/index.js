@@ -121,8 +121,7 @@ function Edit({
           color: sliderColour,
           onChange: color => setAttributes({
             sliderColour: color.hex
-          }),
-          disableAlpha: true
+          })
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
           children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Text Colour')
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.ColorPicker, {
