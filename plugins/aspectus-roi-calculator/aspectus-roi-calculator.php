@@ -263,71 +263,93 @@ function aspectus_roi_calculator_render_callback( $attributes ) {
 				<div class="row">
 					<div class="cell">
 						<span class="results-label">Profit per year</span>
-						<span class="results-value">Value 1</span>
+						<span class="results-value" id="profit_per_year_value">£0.00</span>
 					</div>
 					<div class="cell">
 						<span class="results-label">Units per year</span>
-						<span class="results-value">Value 2</span>
+						<span class="results-value" id="units_per_year_value">0</span>
 					</div>
 				</div>
 				<div class="row">
 					<div class="cell">
 						<span class="results-label">Hours In a Week 24/7</span>
-						<span class="results-value">Value 3</span>
+						<span class="results-value" id="hours_in_week_value">0</span>
 					</div>
 					<div class="cell">
 						<span class="results-label">Extra Hours</span>
-						<span class="results-value">Value 4</span>
+						<span class="results-value" id="extra_hours_value">0</span>
 					</div>
 					<div class="cell">
 						<span class="results-label">Extra Units Per Week</span>
-						<span class="results-value">Value 5</span>
+						<span class="results-value" id="extra_units_per_week_value">0</span>
 					</div>
 				</div>
 			</div>
-
 		</div>
 
 	</div>
 
     <script>
-        (() => {
-            const getVal = id => Number(document.getElementById(id)?.value || 0);
-            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+		(() => {
+			const getVal = id => Number(document.getElementById(id)?.value || 0);
+			const setText = (id, val) => {
+				const el = document.getElementById(id);
+				if (el) el.textContent = val;
+			};
 
-            const updateROI = () => {
-                const percentage = getVal('percentage_increase_slider');
-                const hours = getVal('hours_slider');
-                const days = getVal('days_slider');
-                const weeks = getVal('weeks_per_year_slider');
-                const units = getVal('units_per_hour_input');
-                const profit = getVal('profit_per_unit_input');
+			const updateROI = () => {
+				const percentage = getVal('percentage_increase_slider'); // e.g. 1
+				const hours = getVal('hours_slider');                   // e.g. 24
+				const days = getVal('days_slider');                     // e.g. 7
+				const weeks = getVal('weeks_per_year_slider');          // e.g. 50
+				const unitsPerHour = getVal('units_per_hour_input');    // e.g. 100
+				const profitPerUnit = getVal('profit_per_unit_input');  // e.g. 2
 
-                // Custom ROI formula (adjust as needed)
-                const roi = (percentage / 100) * hours * days * weeks * units * profit;
+				const unitsPerYear = hours * days * weeksPerYear * unitsPerHour; // expected units per year
+				const profitPerYear = profitPerUnit * unitsPerYear;
 
-                setText('percentage_increase_slider_value', percentage);
-                setText('hours_slider_value', hours);
-                setText('days_slider_value', days);
-                setText('weeks_per_year_slider_value', weeks);
+				const hoursInWeek = 24 * 7; // constant = 168
+				const extraHours = (percentage / 100) * hoursInWeek;
+				const extraUnitsPerWeek = unitsPerHour * extraHours;
 
-                const roiOutput = document.getElementById('roi_result');
-                if (roiOutput) roiOutput.textContent = `Estimated ROI increase: £${roi.toFixed(2)}`;
-            };
 
-            const inputs = [
-                'percentage_increase_slider',
-                'hours_slider',
-                'days_slider',
-                'weeks_per_year_slider',
-                'units_per_hour_input',
-                'profit_per_unit_input'
-            ];
+				// Update values
+				setText('percentage_increase_slider_value', percentage);
+				setText('hours_slider_value', hours);
+				setText('days_slider_value', days);
+				setText('weeks_per_year_slider_value', weeks);
 
-            inputs.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.addEventListener('input', updateROI);
-            });
+				// Output results to table
+				setText('hours_in_week_value', hoursInWeek.toFixed(2));
+				setText('extra_hours_value', extraHours.toFixed(2));
+				setText('units_per_year_value', unitsPerYear.toLocaleString());
+				setText('profit_per_year_value',
+					profitPerYear.toLocaleString('en-GB', {
+						style: 'currency',
+						currency: 'GBP',
+						minimumFractionDigits: 2,
+					})
+				);
+				setText('extra_units_per_week_value', extraUnitsPerWeek.toLocaleString());
+
+				// Update main ROI display
+				const roiOutput = document.getElementById('roi_result');
+				if (roiOutput) roiOutput.textContent = `Estimated ROI increase: £${roi.toFixed(2)}`;
+			};
+
+			const inputs = [
+				'percentage_increase_slider',
+				'hours_slider',
+				'days_slider',
+				'weeks_per_year_slider',
+				'units_per_hour_input',
+				'profit_per_unit_input'
+			];
+
+			inputs.forEach(id => {
+				const el = document.getElementById(id);
+				if (el) el.addEventListener('input', updateROI);
+			});
 
 			const sliders = [
 				{ id: 'percentage_increase_slider', output: 'percentage_increase_value', suffix: '%' },
@@ -346,9 +368,10 @@ function aspectus_roi_calculator_render_callback( $attributes ) {
 				}
 			});
 
-            updateROI();
-        })();
-    </script>
+			updateROI();
+		})();
+	</script>
+
     <?php
     return ob_get_clean();
 }
