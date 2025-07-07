@@ -25,6 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @see https://make.wordpress.org/core/2025/03/13/more-efficient-block-type-registration-in-6-8/
  * @see https://make.wordpress.org/core/2024/10/17/new-block-type-registration-apis-to-improve-performance-in-wordpress-6-7/
  */
+
+ // Initialising ROI Calculator Block
 function aspectus_aspectus_roi_calculator_block_init() {
 	/**
 	 * Registers the block(s) metadata from the `blocks-manifest.php` and registers the block type(s)
@@ -57,4 +59,58 @@ function aspectus_aspectus_roi_calculator_block_init() {
 		register_block_type( __DIR__ . "/build/{$block_type}" );
 	}
 }
+
 add_action( 'init', 'aspectus_aspectus_roi_calculator_block_init' );
+
+
+// Localising ACF Field data for use in the CMS
+
+function aspectus_roi_calculator_localize_acf_data() {
+	if ( ! function_exists( 'get_field' ) || ! is_admin() ) {
+		return;
+	}
+
+	global $post;
+	if ( ! $post ) {
+		return;
+	}
+
+	// Collect all the ACF field data you want
+	$acf_data = array(
+		'percentage_increase'     => get_field( 'percentage_increase', $post->ID ),
+		'hours'                   => get_field( 'hours', $post->ID ),
+		'days'                    => get_field( 'days', $post->ID ),
+		'weeks_per_year'          => get_field( 'weeks_per_year', $post->ID ),
+		'units_per_hour'          => get_field( 'units_per_hour', $post->ID ),
+		'profit_per_unit'         => get_field( 'profit_per_unit', $post->ID ), // Group field
+
+		'labels' => array(
+			'percentage_increase'           => get_field( 'percentage_increase_label', $post->ID ),
+			'percentage_increase_placeholder' => get_field( 'percentage_increase_placeholder', $post->ID ),
+			'hours'                         => get_field( 'hours_label', $post->ID ),
+			'hours_placeholder'             => get_field( 'hours_placeholder', $post->ID ),
+			'days'                          => get_field( 'days_label', $post->ID ),
+			'days_placeholder'              => get_field( 'days_placeholder', $post->ID ),
+			'weeks_per_year'                => get_field( 'weeks_per_year_label', $post->ID ),
+			'weeks_per_year_placeholder'    => get_field( 'weeks_per_year_placeholder', $post->ID ),
+			'units_per_hour'                => get_field( 'units_per_hour_label', $post->ID ),
+			'units_per_hour_placeholder'    => get_field( 'units_per_hour_placeholder', $post->ID ),
+			'profit_per_unit'               => get_field( 'profit_per_unit_label', $post->ID ),
+			'profit_per_unit_placeholder'   => get_field( 'profit_per_unit_placeholder', $post->ID ),
+		),
+
+		'appearance' => array(
+			'background_colour' => get_field( 'background_colour', $post->ID ),
+			'slider_colour'     => get_field( 'slider_colour', $post->ID ),
+			'text_colour'       => get_field( 'text_colour', $post->ID ),
+		),
+	);
+
+	// This handle MUST match the one generated in your /build/index.asset.php
+	wp_localize_script(
+		'aspectus-roi-calculator-editor-script',
+		'aspectusACFData',
+		$acf_data
+	);
+}
+add_action( 'enqueue_block_editor_assets', 'aspectus_roi_calculator_localize_acf_data' );
