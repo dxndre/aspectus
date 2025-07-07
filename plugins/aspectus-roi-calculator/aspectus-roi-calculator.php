@@ -257,12 +257,35 @@ function aspectus_roi_calculator_render_callback( $attributes ) {
 					/>
 			</div>
 
-			<div class="input-group">
-				<div id="roi_result" style="margin-top: 1rem; font-weight: bold;">
-						<?php echo esc_html__( 'Estimated ROI increase: 0.00', 'aspectus-roi-calculator' ); ?>
+			<hr>
+
+			<div class="results-table">
+				<div class="row">
+					<div class="cell">
+						<span class="results-label">Profit per year</span>
+						<span class="results-value">Value 1</span>
 					</div>
+					<div class="cell">
+						<span class="results-label">Units per year</span>
+						<span class="results-value">Value 2</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="cell">
+						<span class="results-label">Hours In a Week 24/7</span>
+						<span class="results-value">Value 3</span>
+					</div>
+					<div class="cell">
+						<span class="results-label">Extra Hours</span>
+						<span class="results-value">Value 4</span>
+					</div>
+					<div class="cell">
+						<span class="results-label">Extra Units Per Week</span>
+						<span class="results-value">Value 5</span>
+					</div>
+				</div>
 			</div>
-	
+
 		</div>
 
 	</div>
