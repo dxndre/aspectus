@@ -1,6 +1,6 @@
 # Aspectus ROI Calculator — Documentation
 
-## 1. Setup & Installation
+## 1. Setup & Installation ⚙️
 
 ### Requirements
 
@@ -16,7 +16,7 @@
 3. Ensure ACF fields are configured for your posts or pages as needed.
 4. Use the **Aspectus ROI Calculator** block inside the block editor to add the calculator anywhere.
 
-## 2. Block Attributes & Customization
+## 2. Block Attributes & Customization 🎨
 
 ### Attributes
 
@@ -42,7 +42,7 @@ The block supports the following attributes, which can be customized through ACF
 - Labels and placeholders for inputs can be set in ACF to suit your business terminology.
 - The calculator dynamically updates live results based on user inputs.
 
-## 3. Dependencies & Prerequisites
+## 3. Dependencies & Prerequisites 📝
 
 - **Advanced Custom Fields (ACF):** Used to create and manage custom input fields that feed into the calculator.
 - **Block Editor (Gutenberg):** The calculator is implemented as a reusable block.
@@ -50,14 +50,10 @@ The block supports the following attributes, which can be customized through ACF
 - **PHP 7.4+:** For block registration and server-side rendering compatibility.
 - **WordPress 6.1+:** For block API and editor features.
 
-## 4. Troubleshooting
+## 4. Troubleshooting ⚠️
 
 - If the slider dot or progress bar appears clipped, ensure no parent container has `overflow: hidden` that could clip it.
 - Make sure your PHP environment meets minimum version requirements.
 - If exchange rates fail to load, the calculator defaults to GBP (£).
 - Customize colors via the block settings or ACF to match your theme styles.
 
-## 5. Support & Contributions
-
-- For bug reports or feature requests, please open an issue on the GitHub repository.
-- Contributions and pull requests are welcome.
