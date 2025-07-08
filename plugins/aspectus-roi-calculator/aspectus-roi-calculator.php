@@ -131,20 +131,20 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 
     // Helper function to get ACF field value or fallback to default value in field settings
     if ( ! function_exists( 'get_acf_value_with_default' ) ) {
-		function get_acf_value_with_default( $field_name, $post_id, $fallback = '' ) {
-			$value = get_field( $field_name, $post_id );
-			if ( ! $value ) {
-				$field_object = get_field_object( $field_name, $post_id );
-				if ( $field_object && ! empty( $field_object['default_value'] ) ) {
-					$value = $field_object['default_value'];
-				}
-			}
-			if ( ! $value ) {
-				$value = $fallback;
-			}
-			return $value;
-		}
-	}
+        function get_acf_value_with_default( $field_name, $post_id, $fallback = '' ) {
+            $value = get_field( $field_name, $post_id );
+            if ( ! $value ) {
+                $field_object = get_field_object( $field_name, $post_id );
+                if ( $field_object && ! empty( $field_object['default_value'] ) ) {
+                    $value = $field_object['default_value'];
+                }
+            }
+            if ( ! $value ) {
+                $value = $fallback;
+            }
+            return $value;
+        }
+    }
 
     $background_colour = get_acf_value_with_default( 'background_colour', $post_id, '#ffffff' );
     $slider_colour     = get_acf_value_with_default( 'slider_colour', $post_id, '#0073aa' );
@@ -157,219 +157,222 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
     $units_per_hour     = intval( $attributes['unitsPerHour'] ?? 0 );
     $profit_per_unit_value = floatval( $attributes['profitPerUnit'] ?? 0 );
 
-	// Labels
-	$acf = $block->context['acf_data'] ?? []; // fallback if needed
+    // Default currency for dropdown selection
+    $currency = 'gbp';
 
-	$labels = [
-		'percentage_increase' => get_field('percentage_increase_label', $post_id),
-		'hours'               => get_field('hours_label', $post_id),
-		'days'                => get_field('days_label', $post_id),
-		'weeks_per_year'      => get_field('weeks_per_year_label', $post_id),
-		'units_per_hour'      => get_field('units_per_hour_label', $post_id),
-		'profit_per_unit'     => get_field('profit_per_unit_label', $post_id),
-	];
-	
-	$placeholders = [
-		'percentage_increase' => get_field('percentage_increase_placeholder', $post_id),
-		'hours'               => get_field('hours_placeholder', $post_id),
-		'days'                => get_field('days_placeholder', $post_id),
-		'weeks_per_year'      => get_field('weeks_per_year_placeholder', $post_id),
-		'units_per_hour'      => get_field('units_per_hour_placeholder', $post_id),
-		'profit_per_unit'     => get_field('profit_per_unit_placeholder', $post_id),
-	];
+    // Labels
+    $acf = $block->context['acf_data'] ?? []; // fallback if needed
+
+    $labels = [
+        'percentage_increase' => get_field('percentage_increase_label', $post_id),
+        'hours'               => get_field('hours_label', $post_id),
+        'days'                => get_field('days_label', $post_id),
+        'weeks_per_year'      => get_field('weeks_per_year_label', $post_id),
+        'units_per_hour'      => get_field('units_per_hour_label', $post_id),
+        'profit_per_unit'     => get_field('profit_per_unit_label', $post_id),
+        'profit_per_year'     => get_field('profit_per_year_label', $post_id),
+    ];
+    
+    $placeholders = [
+        'percentage_increase' => get_field('percentage_increase_placeholder', $post_id),
+        'hours'               => get_field('hours_placeholder', $post_id),
+        'days'                => get_field('days_placeholder', $post_id),
+        'weeks_per_year'      => get_field('weeks_per_year_placeholder', $post_id),
+        'units_per_hour'      => get_field('units_per_hour_placeholder', $post_id),
+        'profit_per_unit'     => get_field('profit_per_unit_placeholder', $post_id),
+    ];
 
     ob_start();
     ?>
 
     <div id="calculator" class="aspectus-roi-calculator" style="background-color: <?php echo esc_attr( $background_colour ); ?>; color: <?php echo esc_attr( $text_colour ); ?>;">
         <?php
-		
+
         // Helper to output sliders
         if ( ! function_exists( 'slider_field' ) ) {
-			function slider_field( $id, $label, $value, $min = 0, $max = 100, $slider_colour ) {
-				?>
-				<div class="input-group">
-					<label for="<?php echo esc_attr( $id ); ?>"><strong><?php echo esc_html( $label ); ?></strong></label>
-					<input
-						type="range"
-						id="<?php echo esc_attr( $id ); ?>"
-						min="<?php echo esc_attr( $min ); ?>"
-						max="<?php echo esc_attr( $max ); ?>"
-						value="<?php echo esc_attr( $value ); ?>"
-						style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
-					/>
-					<div class="output-value">
-						<span id="<?php echo esc_attr( $id ); ?>_value"><?php echo esc_html( $value ); ?></span>
-					</div>
-				</div>
-				<?php
-			}
-		}
-		
+            function slider_field( $id, $label, $value, $min = 0, $max = 100, $slider_colour ) {
+                ?>
+                <div class="input-group">
+                    <label for="<?php echo esc_attr( $id ); ?>"><strong><?php echo esc_html( $label ); ?></strong></label>
+                    <input
+                        type="range"
+                        id="<?php echo esc_attr( $id ); ?>"
+                        min="<?php echo esc_attr( $min ); ?>"
+                        max="<?php echo esc_attr( $max ); ?>"
+                        value="<?php echo esc_attr( $value ); ?>"
+                        style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
+                    />
+                    <div class="output-value">
+                        <span id="<?php echo esc_attr( $id ); ?>_value"><?php echo esc_html( $value ); ?></span>
+                    </div>
+                </div>
+                <?php
+            }
+        }
+        
         ?>
 
-		<div class="inputs">
-			<div class="input-group">
-			<label for="percentage_increase_slider"><strong><?php echo esc_html($labels['percentage_increase']); ?></strong></label>
-				<div class="slider">
-					<input
-					type="range"
-					id="percentage_increase_slider"
-					min="0"
-					max="100"
-					value="<?php echo esc_attr($percentage_increase); ?>"
-					placeholder="<?php echo esc_attr($placeholders['percentage_increase']); ?>"
-					style="width: 100%; accent-color: <?php echo esc_attr($slider_colour); ?>;"
-					/>
-					<div class="output-value">
-						<span id="percentage_increase_value"><?php echo esc_html( $percentage_increase ); ?></span>
-					</div>
-				</div>
-			</div>
+        <div class="inputs">
+            <div class="input-group">
+            <label for="percentage_increase_slider"><strong><?php echo esc_html($labels['percentage_increase']); ?></strong></label>
+                <div class="slider">
+                    <input
+                    type="range"
+                    id="percentage_increase_slider"
+                    min="0"
+                    max="100"
+                    value="<?php echo esc_attr($percentage_increase); ?>"
+                    placeholder="<?php echo esc_attr($placeholders['percentage_increase']); ?>"
+                    style="width: 100%; accent-color: <?php echo esc_attr($slider_colour); ?>;"
+                    />
+                    <div class="output-value">
+                        <span id="percentage_increase_value"><?php echo esc_html( $percentage_increase ); ?></span>
+                    </div>
+                </div>
+            </div>
 
-			<div class="input-group">
-				<label for="hours_slider"><strong><?php echo esc_html( $labels['hours'] ); ?></strong></label>
-				<div class="slider">
-					<input
-						type="range"
-						id="hours_slider"
-						min="0"
-						max="24"
-						value="<?php echo esc_attr( $hours ); ?>"
-						style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
-					/>
-					<div class="output-value">
-						<span id="hours_value"><?php echo esc_html( $hours ); ?></span>
-					</div>
-				</div>
-			</div>
+            <div class="input-group">
+                <label for="hours_slider"><strong><?php echo esc_html( $labels['hours'] ); ?></strong></label>
+                <div class="slider">
+                    <input
+                        type="range"
+                        id="hours_slider"
+                        min="0"
+                        max="24"
+                        value="<?php echo esc_attr( $hours ); ?>"
+                        style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
+                    />
+                    <div class="output-value">
+                        <span id="hours_value"><?php echo esc_html( $hours ); ?></span>
+                    </div>
+                </div>
+            </div>
 
-			<div class="input-group">
-				<label for="days_slider">
-					<strong><?php echo esc_html( $labels['days'] ?? __('Days', 'aspectus-roi-calculator') ); ?></strong>
-				</label>
-				<div class="slider">
-					<input
-						type="range"
-						id="days_slider"
-						min="0"
-						max="7"
-						value="<?php echo esc_attr( $days ); ?>"
-						placeholder="<?php echo esc_attr( $placeholders['days'] ?? '' ); ?>"
-						style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
-					/>
-					<div class="output-value">
-						<span id="days_value"><?php echo esc_html( $days ); ?></span>
-					</div>
-				</div>
-			</div>
+            <div class="input-group">
+                <label for="days_slider">
+                    <strong><?php echo esc_html( $labels['days'] ?? __('Days', 'aspectus-roi-calculator') ); ?></strong>
+                </label>
+                <div class="slider">
+                    <input
+                        type="range"
+                        id="days_slider"
+                        min="0"
+                        max="7"
+                        value="<?php echo esc_attr( $days ); ?>"
+                        placeholder="<?php echo esc_attr( $placeholders['days'] ?? '' ); ?>"
+                        style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
+                    />
+                    <div class="output-value">
+                        <span id="days_value"><?php echo esc_html( $days ); ?></span>
+                    </div>
+                </div>
+            </div>
 
-			<div class="input-group">
-				<label for="weeks_per_year_slider">
-					<strong><?php echo esc_html( $labels['weeks_per_year'] ?? __('Weeks Per Year', 'aspectus-roi-calculator') ); ?></strong>
-				</label>
-				<div class="slider">
-					<input
-						type="range"
-						id="weeks_per_year_slider"
-						min="0"
-						max="52"
-						value="<?php echo esc_attr( $weeks_per_year ); ?>"
-						placeholder="<?php echo esc_attr( $placeholders['weeks_per_year'] ?? '' ); ?>"
-						style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
-					/>
-					<div class="output-value">
-						<span id="weeks_per_year_value"><?php echo esc_html( $weeks_per_year ); ?></span>
-					</div>
-				</div>
-			</div>
+            <div class="input-group">
+                <label for="weeks_per_year_slider">
+                    <strong><?php echo esc_html( $labels['weeks_per_year'] ?? __('Weeks Per Year', 'aspectus-roi-calculator') ); ?></strong>
+                </label>
+                <div class="slider">
+                    <input
+                        type="range"
+                        id="weeks_per_year_slider"
+                        min="0"
+                        max="52"
+                        value="<?php echo esc_attr( $weeks_per_year ); ?>"
+                        placeholder="<?php echo esc_attr( $placeholders['weeks_per_year'] ?? '' ); ?>"
+                        style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
+                    />
+                    <div class="output-value">
+                        <span id="weeks_per_year_value"><?php echo esc_html( $weeks_per_year ); ?></span>
+                    </div>
+                </div>
+            </div>
 
-			<div class="input-group">
-				<label for="units_per_hour_input"><strong><?php echo esc_html($labels['units_per_hour']); ?></strong></label>
-				<input
-				type="number"
-				id="units_per_hour_input"
-				value="<?php echo esc_attr($units_per_hour); ?>"
-				placeholder="<?php echo esc_attr($placeholders['units_per_hour']); ?>"
-				style="width: 100%; margin-bottom: 0.5rem;"
-				/>
-			</div>
+            <div class="input-group">
+                <label for="units_per_hour_input"><strong><?php echo esc_html($labels['units_per_hour']); ?></strong></label>
+                <input
+                type="number"
+                id="units_per_hour_input"
+                value="<?php echo esc_attr($units_per_hour); ?>"
+                placeholder="<?php echo esc_attr($placeholders['units_per_hour']); ?>"
+                style="width: 100%; margin-bottom: 0.5rem;"
+                />
+            </div>
 
-			<div class="input-group">
-				<label for="profit_per_unit_input">
-					<strong><?php echo esc_html( $labels['profit_per_unit'] ?? __('Profit Per Unit', 'aspectus-roi-calculator') ); ?></strong>
-				</label>
+            <div class="input-group">
+                <label for="profit_per_unit_input">
+                    <strong><?php echo esc_html( $labels['profit_per_unit'] ?? __('Profit Per Unit', 'aspectus-roi-calculator') ); ?></strong>
+                </label>
 
-				<div style="display: flex; gap: 0.5rem;">
-					<select
-						id="profit_per_unit_currency"
-						name="profit_per_unit_currency"
-						style="width: 40%;"
-					>
-						<?php
-						$currency_choices = [
-							'gbp' => '£ GBP',
-							'usd' => '$ USD',
-							'eur' => '€ EUR',
-							'cad' => '$ CAD',
-							'aud' => '$ AUD',
-							'jpy' => '¥ JPY',
-							'cny' => '¥ CNY',
-							'inr' => '₹ INR',
-							'chf' => 'CHF',
-							'zar' => 'R ZAR',
-						];
+                <div style="display: flex; gap: 0.5rem;">
+                    <select
+                        id="profit_per_unit_currency"
+                        name="profit_per_unit_currency"
+                        style="width: 40%;"
+                    >
+                        <?php
+                        $currency_choices = [
+                            'gbp' => '£ GBP',
+                            'usd' => '$ USD',
+                            'eur' => '€ EUR',
+                            'cad' => '$ CAD',
+                            'aud' => '$ AUD',
+                            'jpy' => '¥ JPY',
+                            'cny' => '¥ CNY',
+                            'inr' => '₹ INR',
+                            'chf' => 'CHF',
+                            'zar' => 'R ZAR',
+                        ];
 
-						foreach ( $currency_choices as $code => $label ) {
-							$selected = $currency === $code ? 'selected' : '';
-							echo "<option value='{$code}' {$selected}>{$label}</option>";
-						}
-						?>
-					</select>
+                        foreach ( $currency_choices as $code => $label ) {
+                            $selected = $currency === $code ? 'selected' : '';
+                            echo "<option value='{$code}' {$selected}>{$label}</option>";
+                        }
+                        ?>
+                    </select>
 
-					<input
-						type="number"
-						step="0.01"
-						id="profit_per_unit_input"
-						value="<?php echo esc_attr( $profit_per_unit_value ); ?>"
-						placeholder="<?php echo esc_attr( $placeholders['profit_per_unit'] ?? '' ); ?>"
-						style="width: 60%;"
-					/>
-				</div>
-			</div>
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="profit_per_unit_input"
+                        value="<?php echo esc_attr( $profit_per_unit_value ); ?>"
+                        placeholder="<?php echo esc_attr( $placeholders['profit_per_unit'] ?? '' ); ?>"
+                        style="width: 60%;"
+                    />
+                </div>
+            </div>
 
+            <hr>
 
-			<hr>
+            <div class="results-table">
+                <div class="row">
+                    <div class="cell">
+                    <span class="results-label"><?php echo esc_html( $labels['profit_per_year'] ?? 'Profit per year' ); ?></span>
+                        <span class="results-value" id="profit_per_year_value">£0.00</span>
+                    </div>
+                    <div class="cell">
+                        <span class="results-label">Units per year</span>
+                        <span class="results-value" id="units_per_year_value">0</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="cell">
+                        <span class="results-label">Hours In a Week 24/7</span>
+                        <span class="results-value" id="hours_in_week_value">0</span>
+                    </div>
+                    <div class="cell">
+                        <span class="results-label">Extra Hours</span>
+                        <span class="results-value" id="extra_hours_value">0</span>
+                    </div>
+                    <div class="cell">
+                        <span class="results-label">Extra Units Per Week</span>
+                        <span class="results-value" id="extra_units_per_week_value">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-			<div class="results-table">
-				<div class="row">
-					<div class="cell">
-					<span class="results-label"><?php echo esc_html( $labels['profit_per_year'] ?? 'Profit per year' ); ?></span>
-						<span class="results-value" id="profit_per_year_value">£0.00</span>
-					</div>
-					<div class="cell">
-						<span class="results-label">Units per year</span>
-						<span class="results-value" id="units_per_year_value">0</span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="cell">
-						<span class="results-label">Hours In a Week 24/7</span>
-						<span class="results-value" id="hours_in_week_value">0</span>
-					</div>
-					<div class="cell">
-						<span class="results-label">Extra Hours</span>
-						<span class="results-value" id="extra_hours_value">0</span>
-					</div>
-					<div class="cell">
-						<span class="results-label">Extra Units Per Week</span>
-						<span class="results-value" id="extra_units_per_week_value">0</span>
-					</div>
-				</div>
-			</div>
-		</div>
-
-	</div>
+    </div>
 
     <script>
 		(() => {
@@ -377,6 +380,30 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 			const setText = (id, val) => {
 				const el = document.getElementById(id);
 				if (el) el.textContent = val;
+			};
+
+			let exchangeRates = { gbp: 1.0 };
+
+			const fetchRates = async () => {
+				try {
+					const res = await fetch('https://api.exchangerate.host/live?access_key=6b1c770b421134b4c417d984c8759a85&currencies=GBP,USD,EUR,CAD,AUD,JPY,CNY,INR,CHF,ZAR&source=GBP');
+					const data = await res.json();
+
+					if (data.success && data.quotes) {
+						exchangeRates = Object.entries(data.quotes).reduce((acc, [key, rate]) => {
+							const currencyCode = key.replace('GBP', '').toLowerCase(); // e.g., 'GBPUSD' -> 'usd'
+							acc[currencyCode] = rate;
+							return acc;
+						}, { gbp: 1.0 });
+
+						console.log('✅ Exchange rates loaded:', exchangeRates);
+					} else {
+						console.warn('⚠️ API responded with error or no data:', data);
+					}
+				} catch (err) {
+					console.error('❌ Failed to fetch rates:', err);
+					exchangeRates = { gbp: 1.0 };
+				}
 			};
 
 			const updateROI = () => {
@@ -387,50 +414,42 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 				const unitsPerHour = getVal('units_per_hour_input');
 				const profitPerUnit = getVal('profit_per_unit_input');
 
-				const unitsPerYear = hours * days * weeks * unitsPerHour; // corrected variable here
-				const profitPerYear = profitPerUnit * unitsPerYear / 100;
+				const currencySelect = document.getElementById('profit_per_unit_currency');
+				const selectedCurrency = currencySelect?.value?.toLowerCase() || 'gbp';
 
-				const hoursInWeek = 24 * 7; // constant = 168
+				const unitsPerYear = hours * days * weeks * unitsPerHour;
+				const profitPerYearGBP = profitPerUnit * unitsPerYear / 100;
+
+				const rate = exchangeRates[selectedCurrency] || 1;
+				const convertedProfit = profitPerYearGBP * rate;
+
+				console.log(`Selected currency: ${selectedCurrency}, rate: ${rate}`);
+				console.log(`Profit per year in GBP: ${profitPerYearGBP}, converted profit: ${convertedProfit}`);
+
+				const currencySymbols = {
+					gbp: '£', usd: '$', eur: '€', cad: '$', aud: '$', jpy: '¥',
+					cny: '¥', inr: '₹', chf: 'CHF', zar: 'R'
+				};
+
+				const currencySymbol = currencySymbols[selectedCurrency] || selectedCurrency.toUpperCase();
+
+				// Output results
+				setText('units_per_year_value', unitsPerYear.toLocaleString());
+				setText('profit_per_year_value',
+					currencySymbol + convertedProfit.toLocaleString(undefined, {
+						minimumFractionDigits: 2,
+						maximumFractionDigits: 2,
+					})
+				);
+
+				const hoursInWeek = 24 * 7;
 				const extraHours = (percentage / 100) * hoursInWeek;
 				const extraUnitsPerWeek = unitsPerHour * extraHours;
 
-				// Update values
-				setText('percentage_increase_slider_value', percentage);
-				setText('hours_slider_value', hours);
-				setText('days_slider_value', days);
-				setText('weeks_per_year_slider_value', weeks);
-
-				// Output results to table
 				setText('hours_in_week_value', hoursInWeek.toFixed(2));
 				setText('extra_hours_value', extraHours.toFixed(2));
-				setText('units_per_year_value', unitsPerYear.toLocaleString());
-				setText('profit_per_year_value',
-					profitPerYear.toLocaleString('en-GB', {
-						style: 'currency',
-						currency: 'GBP',
-						minimumFractionDigits: 2,
-					})
-				);
 				setText('extra_units_per_week_value', extraUnitsPerWeek.toLocaleString());
-
-				// Update main ROI display (adjust if needed)
-				const roiOutput = document.getElementById('roi_result');
-				if (roiOutput) roiOutput.textContent = `Estimated ROI increase: £${profitPerYear.toFixed(2)}`;
 			};
-
-			const inputs = [
-				'percentage_increase_slider',
-				'hours_slider',
-				'days_slider',
-				'weeks_per_year_slider',
-				'units_per_hour_input',
-				'profit_per_unit_input'
-			];
-
-			inputs.forEach(id => {
-				const el = document.getElementById(id);
-				if (el) el.addEventListener('input', updateROI);
-			});
 
 			const sliders = [
 				{ id: 'percentage_increase_slider', output: 'percentage_increase_value', suffix: '%' },
@@ -439,23 +458,45 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 				{ id: 'weeks_per_year_slider', output: 'weeks_per_year_value' },
 			];
 
-			sliders.forEach(({ id, output, suffix = '' }) => {
-				const slider = document.getElementById(id);
-				const value = document.getElementById(output);
-				if (slider && value) {
-					slider.addEventListener('input', () => {
-						value.textContent = slider.value + suffix;
-					});
-				}
-			});
+			const attachListeners = () => {
+				const inputs = [
+					'percentage_increase_slider',
+					'hours_slider',
+					'days_slider',
+					'weeks_per_year_slider',
+					'units_per_hour_input',
+					'profit_per_unit_input',
+					'profit_per_unit_currency'
+				];
 
-			updateROI();
+				inputs.forEach(id => {
+					const el = document.getElementById(id);
+					if (el) el.addEventListener('input', updateROI);
+				});
+
+				sliders.forEach(({ id, output, suffix = '' }) => {
+					const slider = document.getElementById(id);
+					const value = document.getElementById(output);
+					if (slider && value) {
+						slider.addEventListener('input', () => {
+							value.textContent = slider.value + suffix;
+						});
+					}
+				});
+			};
+
+			// Start
+			fetchRates().then(() => {
+				attachListeners();
+				updateROI();
+			});
 		})();
-	</script>
+</script>
 
     <?php
     return ob_get_clean();
 }
+
 
 // Register block type with the render callback
 register_block_type(
