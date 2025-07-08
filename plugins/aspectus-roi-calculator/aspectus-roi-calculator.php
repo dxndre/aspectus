@@ -185,7 +185,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
     ob_start();
     ?>
 
-    <div id="calculator" class="aspectus-roi-calculator" style="background-color: <?php echo esc_attr( $background_colour ); ?>; color: <?php echo esc_attr( $text_colour ); ?>;">
+	<div id="calculator" class="aspectus-roi-calculator" style="background-color: <?php echo esc_attr( $background_colour ); ?>; color: <?php echo esc_attr( $text_colour ); ?>;">
         <?php
 
         // Helper to output sliders
@@ -372,6 +372,48 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
             </div>
         </div>
 
+		<style>
+			#calculator .inputs .input-group label,
+			#calculator .results-table .row .cell span.results-label,
+			#calculator .results-table .row .cell span.results-value,
+			#calculator .inputs .input-group input,
+			#calculator .inputs .input-group select#profit_per_unit_currency {
+				color: <?php echo esc_attr( $text_colour ); ?>;
+			}
+
+			#calculator input[type="range"] {
+				background: white; /* base track color */
+			}
+
+			/* WebKit track with progress as gradient */
+			#calculator input[type="range"]::-webkit-slider-runnable-track {
+				height: 6px;
+				border-radius: 5px;
+				background: linear-gradient(
+				to right,
+				<?php echo esc_attr($slider_colour); ?> 0%,
+				<?php echo esc_attr($slider_colour); ?> var(--percent),
+				white var(--percent),
+				white 100%
+				);
+			}
+
+			/* WebKit thumb */
+			#calculator input[type="range"]::-webkit-slider-thumb {
+				background-color: <?php echo esc_attr($slider_colour); ?>;
+			}
+
+			/* Firefox progress */
+			#calculator input[type="range"]::-moz-range-progress {
+				background-color: <?php echo esc_attr($slider_colour); ?>;
+			}
+
+			/* Firefox thumb */
+			#calculator input[type="range"]::-moz-range-thumb {
+				background-color: <?php echo esc_attr($slider_colour); ?>;
+			}
+		</style>
+
     </div>
 
     <script>
@@ -451,6 +493,13 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 				setText('extra_units_per_week_value', extraUnitsPerWeek.toLocaleString());
 			};
 
+			// New helper: update CSS --percent variable for slider progress
+			const updateSliderPercent = (slider) => {
+				if (!slider) return;
+				const percent = (slider.value / slider.max) * 100;
+				slider.style.setProperty('--percent', percent + '%');
+			};
+
 			const sliders = [
 				{ id: 'percentage_increase_slider', output: 'percentage_increase_value', suffix: '%' },
 				{ id: 'hours_slider', output: 'hours_value' },
@@ -471,16 +520,23 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 
 				inputs.forEach(id => {
 					const el = document.getElementById(id);
-					if (el) el.addEventListener('input', updateROI);
+					if (el) {
+						el.addEventListener('input', updateROI);
+					}
 				});
 
 				sliders.forEach(({ id, output, suffix = '' }) => {
 					const slider = document.getElementById(id);
 					const value = document.getElementById(output);
 					if (slider && value) {
+						// Update output text AND slider progress on input
 						slider.addEventListener('input', () => {
 							value.textContent = slider.value + suffix;
+							updateSliderPercent(slider);
 						});
+
+						// Initialize progress on page load
+						updateSliderPercent(slider);
 					}
 				});
 			};
@@ -491,7 +547,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 				updateROI();
 			});
 		})();
-</script>
+	</script>
 
     <?php
     return ob_get_clean();
