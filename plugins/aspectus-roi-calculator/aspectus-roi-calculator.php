@@ -525,15 +525,16 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 				const val = Number(slider.value);
 
 				const percent = (val - min) / (max - min);
+				let dotX = percent * sliderWidth;
 
-				// Calculate pixel position relative to slider container
-				const dotX = percent * sliderWidth;
+				// Offset by half the dot's width so it's centered
+				const dotWidth = dot.offsetWidth || 16; // fallback if not set yet
+				dotX = dotX - (dotWidth / 1.5);
 
-				// Clamp inside container
-				const clampedX = Math.min(Math.max(dotX, 0), sliderWidth);
+				// Clamp inside container boundaries
+				dotX = Math.min(Math.max(dotX, 0), sliderWidth - dotWidth);
 
-				// Set left in pixels (no calc with % for now, easier to debug)
-				dot.style.left = clampedX + 'px';
+				dot.style.left = dotX + 'px';
 			}
 
 			const sliders = [
