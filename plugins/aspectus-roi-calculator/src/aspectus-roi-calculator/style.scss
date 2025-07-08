@@ -45,6 +45,19 @@
 					border-radius: 5px;
 					position: relative;
 					overflow: hidden;
+
+					&::before {
+						// content: '';
+						position: absolute;
+						top: 50%;
+						left: var(--percent, 0%);
+						transform: translate(-50%, -50%);
+						width: 16px;
+						height: 16px;
+						border-radius: 50%;
+						pointer-events: none;
+						z-index: 9999;  // very high to be on top
+					}
 			
 					// WebKit (Chrome, Safari)
 					&::-webkit-slider-thumb {
@@ -135,6 +148,21 @@
 			display: flex;
 			gap: 10px;
 			align-items: center;
+			overflow: visible;
+  			position: relative; // if not already
+		}
+
+		.slider-dot {
+			position: absolute;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			pointer-events: none;
+			transition: left 0.15s ease;
+			z-index: 10;
+			margin-left: 10px;
 		}
 	}
 

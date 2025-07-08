@@ -213,9 +213,9 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
         ?>
 
         <div class="inputs">
-            <div class="input-group">
+		<div class="input-group">
             <label for="percentage_increase_slider"><strong><?php echo esc_html($labels['percentage_increase']); ?></strong></label>
-                <div class="slider">
+                <div class="slider" style="position: relative;">
                     <input
                     type="range"
                     id="percentage_increase_slider"
@@ -225,6 +225,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
                     placeholder="<?php echo esc_attr($placeholders['percentage_increase']); ?>"
                     style="width: 100%; accent-color: <?php echo esc_attr($slider_colour); ?>;"
                     />
+                    <div class="slider-dot"></div> 
                     <div class="output-value">
                         <span id="percentage_increase_value"><?php echo esc_html( $percentage_increase ); ?></span>
                     </div>
@@ -233,7 +234,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 
             <div class="input-group">
                 <label for="hours_slider"><strong><?php echo esc_html( $labels['hours'] ); ?></strong></label>
-                <div class="slider">
+                <div class="slider" style="position: relative;">
                     <input
                         type="range"
                         id="hours_slider"
@@ -242,6 +243,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
                         value="<?php echo esc_attr( $hours ); ?>"
                         style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
                     />
+                    <div class="slider-dot"></div> 
                     <div class="output-value">
                         <span id="hours_value"><?php echo esc_html( $hours ); ?></span>
                     </div>
@@ -252,7 +254,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
                 <label for="days_slider">
                     <strong><?php echo esc_html( $labels['days'] ?? __('Days', 'aspectus-roi-calculator') ); ?></strong>
                 </label>
-                <div class="slider">
+                <div class="slider" style="position: relative;">
                     <input
                         type="range"
                         id="days_slider"
@@ -262,6 +264,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
                         placeholder="<?php echo esc_attr( $placeholders['days'] ?? '' ); ?>"
                         style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
                     />
+                    <div class="slider-dot"></div> 
                     <div class="output-value">
                         <span id="days_value"><?php echo esc_html( $days ); ?></span>
                     </div>
@@ -272,7 +275,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
                 <label for="weeks_per_year_slider">
                     <strong><?php echo esc_html( $labels['weeks_per_year'] ?? __('Weeks Per Year', 'aspectus-roi-calculator') ); ?></strong>
                 </label>
-                <div class="slider">
+                <div class="slider" style="position: relative;">
                     <input
                         type="range"
                         id="weeks_per_year_slider"
@@ -282,6 +285,7 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
                         placeholder="<?php echo esc_attr( $placeholders['weeks_per_year'] ?? '' ); ?>"
                         style="width: 100%; accent-color: <?php echo esc_attr( $slider_colour ); ?>;"
                     />
+                    <div class="slider-dot"></div> 
                     <div class="output-value">
                         <span id="weeks_per_year_value"><?php echo esc_html( $weeks_per_year ); ?></span>
                     </div>
@@ -412,6 +416,15 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 			#calculator input[type="range"]::-moz-range-thumb {
 				background-color: <?php echo esc_attr($slider_colour); ?>;
 			}
+
+			#calculator input[type="range"]::before {
+				background-color: <?php echo esc_attr( $slider_colour ); ?>;
+				border-color: <?php echo esc_attr( $slider_colour ); ?>;
+			}
+
+			#calculator .slider-dot {
+				background-color: <?php echo esc_attr( $slider_colour ); ?>;
+			}
 		</style>
 
     </div>
@@ -500,12 +513,55 @@ function aspectus_roi_calculator_render_callback( $attributes, $content = '', $b
 				slider.style.setProperty('--percent', percent + '%');
 			};
 
+			// Position dot on slider
+			function updateSliderDotPosition(slider) {
+				if (!slider) return;
+				const dot = slider.parentElement.querySelector('.slider-dot');
+				if (!dot) return;
+
+				const sliderWidth = slider.offsetWidth;
+				const min = Number(slider.min) || 0;
+				const max = Number(slider.max) || 100;
+				const val = Number(slider.value);
+
+				const percent = (val - min) / (max - min);
+
+				// Calculate pixel position relative to slider container
+				const dotX = percent * sliderWidth;
+
+				// Clamp inside container
+				const clampedX = Math.min(Math.max(dotX, 0), sliderWidth);
+
+				// Set left in pixels (no calc with % for now, easier to debug)
+				dot.style.left = clampedX + 'px';
+			}
+
 			const sliders = [
-				{ id: 'percentage_increase_slider', output: 'percentage_increase_value', suffix: '%' },
-				{ id: 'hours_slider', output: 'hours_value' },
-				{ id: 'days_slider', output: 'days_value' },
-				{ id: 'weeks_per_year_slider', output: 'weeks_per_year_value' },
+			{ id: 'percentage_increase_slider', output: 'percentage_increase_value', suffix: '%' },
+			{ id: 'hours_slider', output: 'hours_value' },
+			{ id: 'days_slider', output: 'days_value' },
+			{ id: 'weeks_per_year_slider', output: 'weeks_per_year_value' },
 			];
+
+			sliders.forEach(({ id, output, suffix = '' }) => {
+			const slider = document.getElementById(id);
+			const value = document.getElementById(output);
+			if (slider && value) {
+				slider.addEventListener('input', () => {
+				// Update output text
+				value.textContent = slider.value + suffix;
+
+				// Update slider progress (your existing code)
+				updateSliderPercent(slider);
+
+				// Update the dot position
+				updateSliderDotPosition(slider);
+				});
+
+				// Initialize dot position on page load
+				updateSliderDotPosition(slider);
+			}
+			});
 
 			const attachListeners = () => {
 				const inputs = [

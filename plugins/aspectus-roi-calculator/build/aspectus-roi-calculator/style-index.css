@@ -44,6 +44,17 @@
   position: relative;
   overflow: hidden;
 }
+#calculator .inputs .input-group input[type=range]::before {
+  position: absolute;
+  top: 50%;
+  left: var(--percent, 0%);
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+}
 #calculator .inputs .input-group input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   height: 16px;
@@ -115,6 +126,20 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  overflow: visible;
+  position: relative;
+}
+#calculator .inputs .slider-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: left 0.15s ease;
+  z-index: 10;
+  margin-left: 10px;
 }
 #calculator hr {
   display: block;
