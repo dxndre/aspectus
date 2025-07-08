@@ -1,4 +1,4 @@
-# Aspectus ROI Calculator — Official Documentation
+# Aspectus ROI Calculator by D'André Phillips — Official Documentation
 
 ## 1. Setup & Installation ⚙️
 
